@@ -1,9 +1,9 @@
 #![feature(test)]
 extern crate test;
 
-use std::collections::HashSet;
-
 use bstr::ByteSlice;
+use smallvec::smallvec_inline as smallvec;
+use std::collections::HashSet;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
 
@@ -11,7 +11,7 @@ fn neighbors(row_count: usize, col_count: usize, row: usize, col: usize) -> Vec<
     let mut neighbors = Vec::new();
 
     for r in row.saturating_sub(1)..=(row + 1).min(row_count) {
-        for c in col.saturating_sub(1)..=(col + 1).min(col_count){
+        for c in col.saturating_sub(1)..=(col + 1).min(col_count) {
             neighbors.push(r * col_count + c);
         }
     }
@@ -75,7 +75,7 @@ fn part_2(input: &[u8]) -> u64 {
             if c == b'*' {
                 neighbors(row_count, col_count, i, j).iter().for_each(|&n| {
                     if grid[n].is_none() {
-                        grid[n] = Some(vec![gear_idx]);
+                        grid[n] = Some(smallvec![gear_idx]);
                     } else {
                         grid[n].as_mut().unwrap().push(gear_idx);
                     }
@@ -99,10 +99,9 @@ fn part_2(input: &[u8]) -> u64 {
                 temp = temp * 10 + u64::from(c - b'0');
                 continue;
             } else {
-
                 for &gear in encountered_gears.iter() {
                     if gears[gear].is_none() {
-                        gears[gear] = Some(vec![temp]);
+                        gears[gear] = Some(smallvec![temp]);
                     } else {
                         gears[gear].as_mut().unwrap().push(temp);
                     }
@@ -113,7 +112,7 @@ fn part_2(input: &[u8]) -> u64 {
         }
         for &gear in encountered_gears.iter() {
             if gears[gear].is_none() {
-                gears[gear] = Some(vec![temp]);
+                gears[gear] = Some(smallvec![temp]);
             } else {
                 gears[gear].as_mut().unwrap().push(temp);
             }
