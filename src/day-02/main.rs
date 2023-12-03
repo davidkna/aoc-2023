@@ -39,17 +39,17 @@ fn part_1(input: &[u8]) -> u32 {
     input
         .lines()
         .enumerate()
-        .map(|(i, line)| {
+        .filter(|(_i, line)| {
             let (_game, line) = line.split_once_str(": ").unwrap();
             let mut moves = line.split_str("; ").map(Move::parse);
 
-            if moves
-                .any(|move_| {
-                    move_.blue > MAX_MOVE.blue
-                        || move_.green > MAX_MOVE.green
-                        || move_.red > MAX_MOVE.red
-                }) { 0 } else { i as u32 + 1 }
+            moves.any(|move_| {
+                move_.blue > MAX_MOVE.blue
+                    || move_.green > MAX_MOVE.green
+                    || move_.red > MAX_MOVE.red
+            })
         })
+        .map(|(i, _)| i as u32 + 1)
         .sum()
 }
 
