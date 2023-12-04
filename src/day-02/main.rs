@@ -43,7 +43,7 @@ fn part_1(input: &[u8]) -> u32 {
             let (_game, line) = line.split_once_str(": ").unwrap();
             let mut moves = line.split_str("; ").map(Move::parse);
 
-            moves.any(|move_| {
+            !moves.any(|move_| {
                 move_.blue > MAX_MOVE.blue
                     || move_.green > MAX_MOVE.green
                     || move_.red > MAX_MOVE.red
