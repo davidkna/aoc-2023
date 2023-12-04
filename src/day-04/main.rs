@@ -39,39 +39,35 @@ fn part_1(input: &[u8]) -> u64 {
 fn part_2(input: &[u8]) -> u64 {
     input
         .lines()
-        .enumerate()
-        .fold(
-            (0, VecDeque::new()),
-            |(result, mut acc), (card_no, line)| {
-                let (_, game) = line.split_once_str(": ").unwrap();
-                let (winning_cards, my_cards) = game.split_once_str(" | ").unwrap();
-                let winning_cards = winning_cards
-                    .split_str(" ")
-                    .filter(|n| !n.is_empty())
-                    .map(|n| n.to_str().unwrap().parse::<u32>().unwrap())
-                    .collect::<HashSet<_>>();
+        .fold((0, VecDeque::new()), |(result, mut acc), line| {
+            let (_, game) = line.split_once_str(": ").unwrap();
+            let (winning_cards, my_cards) = game.split_once_str(" | ").unwrap();
+            let winning_cards = winning_cards
+                .split_str(" ")
+                .filter(|n| !n.is_empty())
+                .map(|n| n.to_str().unwrap().parse::<u32>().unwrap())
+                .collect::<HashSet<_>>();
 
-                let my_cards = my_cards
-                    .split_str(" ")
-                    .filter(|n| !n.is_empty())
-                    .map(|n| n.to_str().unwrap().parse::<u32>().unwrap())
-                    .collect::<HashSet<_>>();
+            let my_cards = my_cards
+                .split_str(" ")
+                .filter(|n| !n.is_empty())
+                .map(|n| n.to_str().unwrap().parse::<u32>().unwrap())
+                .collect::<HashSet<_>>();
 
-                let my_count = acc.pop_front().unwrap_or(1);
+            let my_count = acc.pop_front().unwrap_or(1);
 
-                let match_count = winning_cards.intersection(&my_cards).count();
-                let acc_len = acc.len();
-                for item in acc.iter_mut().take(match_count) {
-                    *item += my_count;
-                }
+            let match_count = winning_cards.intersection(&my_cards).count();
+            let acc_len = acc.len();
+            for item in acc.iter_mut().take(match_count) {
+                *item += my_count;
+            }
 
-                for _ in acc_len..match_count {
-                    acc.push_back(my_count + 1)
-                }
+            for _ in acc_len..match_count {
+                acc.push_back(my_count + 1)
+            }
 
-                (result + my_count, acc)
-            },
-        )
+            (result + my_count, acc)
+        })
         .0
 }
 
