@@ -9,29 +9,23 @@ const INPUT: &[u8] = include_bytes!("input.txt");
 fn part_1(input: &[u8]) -> u64 {
     input
         .lines()
-        .map(|line| {
+        .filter_map(|line| {
             let (_, game) = line.split_once_str(": ").unwrap();
             let (winning_cards, my_cards) = game.split_once_str(" | ").unwrap();
             let winning_cards = winning_cards
                 .split_str(" ")
                 .filter(|n| !n.is_empty())
-                .map(|n| n.to_str().unwrap().parse::<u32>().unwrap())
+                .map(|n| unsafe { n.to_str_unchecked() }.parse::<u32>().unwrap())
                 .collect::<HashSet<_>>();
 
             let my_cards = my_cards
                 .split_str(" ")
                 .filter(|n| !n.is_empty())
-                .map(|n| n.to_str().unwrap().parse::<u32>().unwrap())
+                .map(|n| unsafe { n.to_str_unchecked() }.parse::<u32>().unwrap())
                 .collect::<HashSet<_>>();
 
             let match_count = winning_cards.intersection(&my_cards).count();
-
-            match match_count {
-                0 => 0,
-                1 => 1,
-                2 => 2,
-                _ => 2_u64.pow((match_count - 1) as u32),
-            }
+            match_count.checked_sub(1).map(|n| 2u64.pow(n as u32))
         })
         .sum()
 }
@@ -45,13 +39,13 @@ fn part_2(input: &[u8]) -> u64 {
             let winning_cards = winning_cards
                 .split_str(" ")
                 .filter(|n| !n.is_empty())
-                .map(|n| n.to_str().unwrap().parse::<u32>().unwrap())
+                .map(|n| unsafe { n.to_str_unchecked() }.parse::<u32>().unwrap())
                 .collect::<HashSet<_>>();
 
             let my_cards = my_cards
                 .split_str(" ")
                 .filter(|n| !n.is_empty())
-                .map(|n| n.to_str().unwrap().parse::<u32>().unwrap())
+                .map(|n| unsafe { n.to_str_unchecked() }.parse::<u32>().unwrap())
                 .collect::<HashSet<_>>();
 
             let my_count = acc.pop_front().unwrap_or(1);
