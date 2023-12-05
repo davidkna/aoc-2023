@@ -1,6 +1,7 @@
 #![feature(test)]
 extern crate test;
 
+use aho_corasick::{AhoCorasick, PatternID};
 use bstr::ByteSlice;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
@@ -32,52 +33,30 @@ fn part_1(input: &[u8]) -> u32 {
 }
 
 fn part_2(input: &[u8]) -> u32 {
-    let re_forward =
-        regex::bytes::Regex::new(r"(\d|(?:one|two|three|four|five|six|seven|eight|nine))").unwrap();
-    let re_backward =
-        regex::bytes::Regex::new(r"(\d|(?:eno|owt|eerht|ruof|evif|xis|neves|thgie|enin))").unwrap();
+    let patterns = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "one", "two", "three", "four", "five", "six",
+        "seven", "eight", "nine",
+    ];
+
+    let ac = AhoCorasick::new(patterns).unwrap();
+
+    fn pattern_id_to_num(id: PatternID) -> u32 {
+        let id_u = id.as_u32();
+        match id_u {
+            0..=9 => id_u + 1,
+            10..=19 => id_u - 9,
+            _ => unreachable!(),
+        }
+    }
 
     input
         .lines()
         .map(|line| {
-            let first = re_forward
-                .captures_iter(line)
-                .next()
-                .map(|num| match &num[1] {
-                    n if n[0].is_ascii_digit() => n[0] - b'0',
-                    b"one" => 1,
-                    b"two" => 2,
-                    b"three" => 3,
-                    b"four" => 4,
-                    b"five" => 5,
-                    b"six" => 6,
-                    b"seven" => 7,
-                    b"eight" => 8,
-                    b"nine" => 9,
-                    _ => unreachable!(),
-                })
-                .unwrap();
+            let mut matcher = ac.find_overlapping_iter(line);
+            let first = matcher.next().unwrap();
+            let last = matcher.last().unwrap_or(first);
 
-            let line_rev = line.iter().rev().copied().collect::<Vec<_>>();
-            let last = re_backward
-                .captures_iter(&line_rev)
-                .next()
-                .map(|c| match &c[1] {
-                    n if n[0].is_ascii_digit() => n[0] - b'0',
-                    b"eno" => 1,
-                    b"owt" => 2,
-                    b"eerht" => 3,
-                    b"ruof" => 4,
-                    b"evif" => 5,
-                    b"xis" => 6,
-                    b"neves" => 7,
-                    b"thgie" => 8,
-                    b"enin" => 9,
-                    _ => unreachable!(),
-                })
-                .unwrap();
-
-            u32::from(first * 10 + last)
+            pattern_id_to_num(first.pattern()) * 10 + pattern_id_to_num(last.pattern())
         })
         .sum()
 }
