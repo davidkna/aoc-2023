@@ -60,14 +60,13 @@ fn part_2(input: &[u8]) -> u32 {
             let (_game, line) = line.split_once_str(": ").unwrap();
             let moves = line.split_str("; ").map(Move::parse);
 
-            let min_move =
-                moves
-                    .reduce(|acc, move_| Move {
-                        blue: acc.blue.max(move_.blue),
-                        green: acc.green.max(move_.green),
-                        red: acc.red.max(move_.red),
-                    })
-                    .unwrap();
+            let min_move = moves
+                .reduce(|acc, move_| Move {
+                    blue: acc.blue.max(move_.blue),
+                    green: acc.green.max(move_.green),
+                    red: acc.red.max(move_.red),
+                })
+                .unwrap();
             min_move.blue * min_move.green * min_move.red
         })
         .sum()
