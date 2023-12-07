@@ -27,10 +27,10 @@ fn part_1(input: &[u8]) -> u64 {
     input
         .lines()
         .map(|line| {
-            let (hand, bid) = line.split_str(" ").collect_tuple().unwrap();
+            let (hand_str, bid) = line.split_once_str(" ").unwrap();
             let bid = unsafe { bid.to_str_unchecked() }.parse::<u64>().unwrap();
 
-            let cards_in_hand = TryInto::<[u8; 5]>::try_into(hand)
+            let cards_in_hand = TryInto::<[u8; 5]>::try_into(hand_str)
                 .unwrap()
                 .map(|c| match c {
                     b'2'..=b'9' => c - b'0',
@@ -78,10 +78,10 @@ fn part_2(input: &[u8]) -> u64 {
     input
         .lines()
         .map(|line| {
-            let (hand, bid) = line.split_str(" ").collect_tuple().unwrap();
+            let (hand_str, bid) = line.split_once_str(" ").unwrap();
             let bid = unsafe { bid.to_str_unchecked() }.parse::<u64>().unwrap();
 
-            let cards_in_hand = TryInto::<[u8; 5]>::try_into(hand)
+            let cards_in_hand = TryInto::<[u8; 5]>::try_into(hand_str)
                 .unwrap()
                 .map(|c| match c {
                     b'J' => 0,
@@ -94,7 +94,6 @@ fn part_2(input: &[u8]) -> u64 {
                 });
 
             let mut joker_count = 0;
-
             let mut frequency = cards_in_hand
                 .iter()
                 .sorted_unstable()
@@ -125,8 +124,6 @@ fn part_2(input: &[u8]) -> u64 {
                 [1, 1, 1, 2] => HandType::OnePair,
                 _ => HandType::HighCard,
             };
-
-
 
             let hand = Hand {
                 cards: cards_in_hand,
