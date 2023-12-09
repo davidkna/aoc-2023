@@ -16,12 +16,14 @@ fn part_1(input: &[u8]) -> i64 {
                 .map(|s| unsafe { s.to_str_unchecked() }.parse::<i64>().unwrap())
                 .collect_vec();
             let mut result = 0;
-            while !observations.is_empty() && observations.iter().any(|&n| n != 0) {
+            for i in 1..observations.len() {
                 result += observations.last().unwrap();
-                observations = observations
-                    .array_windows()
-                    .map(|[a, b]| b - a)
-                    .collect_vec();
+                for j in (i..observations.len()).rev() {
+                    observations[j] -= observations[j - 1];
+                }
+                if observations[i..].iter().all(|&n| n == 0) {
+                    break;
+                }
             }
             result
         })
@@ -33,27 +35,26 @@ fn part_2(input: &[u8]) -> i64 {
         .lines()
         .map(|line| {
             let _result = 0;
-            let mut is_even = false;
+            let mut is_even = true;
 
             let mut observations = line
                 .split_str(" ")
                 .map(|s| unsafe { s.to_str_unchecked() }.parse::<i64>().unwrap())
                 .collect_vec();
             let mut result = 0;
-
-            while !observations.is_empty() && observations.iter().any(|&n| n != 0) {
-                let first = observations.first().unwrap();
+            for i in 1..observations.len() {
                 if is_even {
-                    result -= first;
+                    result += observations[i - 1];
                 } else {
-                    result += first;
+                    result -= observations[i - 1];
                 }
                 is_even = !is_even;
-
-                observations = observations
-                    .array_windows()
-                    .map(|[a, b]| b - a)
-                    .collect_vec();
+                for j in (i..observations.len()).rev() {
+                    observations[j] -= observations[j - 1];
+                }
+                if observations[i..].iter().all(|&n| n == 0) {
+                    break;
+                }
             }
             result
         })
