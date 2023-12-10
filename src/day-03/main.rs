@@ -1,9 +1,10 @@
 #![feature(test)]
 extern crate test;
 
+use std::collections::HashSet;
+
 use bstr::ByteSlice;
 use smallvec::smallvec_inline as smallvec;
-use std::collections::HashSet;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
 

@@ -1,8 +1,9 @@
 #![feature(test)]
 extern crate test;
 
-use bstr::ByteSlice;
 use std::collections::{HashSet, VecDeque};
+
+use bstr::ByteSlice;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
 

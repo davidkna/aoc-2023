@@ -1,9 +1,10 @@
 #![feature(test)]
 extern crate test;
 
+use std::ops::Range;
+
 use bstr::ByteSlice;
 use itertools::Itertools;
-use std::ops::Range;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
 
