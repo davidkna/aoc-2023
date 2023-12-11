@@ -19,6 +19,7 @@ dependencies = [
  "bstr",
  "fnv",
  "itertools",
+ "memchr",
  "mimalloc-rust",
  "rayon",
  "regex",
