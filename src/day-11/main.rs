@@ -24,8 +24,8 @@ fn solve(input: &[u8], expansion_factor: usize) -> usize {
         .flat_map(|(y, line)| memchr::memchr_iter(b'#', line).map(move |x| (x, y)))
         .collect_vec();
 
-    let stars_ys = stars.iter().map(|(_, y)| *y).sorted().collect_vec();
-    let stars_xs = stars.iter().map(|(x, _)| *x).sorted().collect_vec();
+    let stars_ys = stars.iter().map(|(_, y)| *y).sorted().dedup().collect_vec();
+    let stars_xs = stars.iter().map(|(x, _)| *x).sorted().dedup().collect_vec();
 
     stars
         .into_iter()
