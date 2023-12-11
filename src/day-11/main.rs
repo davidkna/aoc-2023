@@ -1,5 +1,8 @@
+#![feature(cmp_minmax)]
 #![feature(test)]
 extern crate test;
+
+use std::cmp;
 
 use bstr::ByteSlice;
 use itertools::Itertools;
@@ -26,13 +29,15 @@ fn solve(input: &[u8], expansion_factor: usize) -> usize {
 
     stars
         .into_iter()
+        .map(|(x, y)| {
+            let x_pos = stars_xs.binary_search(&x).unwrap();
+            let y_pos = stars_ys.binary_search(&y).unwrap();
+            (x_pos, y_pos)
+        })
         .tuple_combinations()
         .map(|(star1, star2)| {
-            let (x1, y1) = star1;
-            let (x2, y2) = star2;
-
-            let x1_idx = stars_xs.binary_search(&x1.min(x2)).unwrap();
-            let x2_idx = stars_xs.binary_search(&x1.max(x2)).unwrap();
+            let [x1_idx, x2_idx] = cmp::minmax(star1.0, star2.0);
+            let [y1_idx, y2_idx] = cmp::minmax(star1.1, star2.1);
 
             let distance_x = stars_xs[x1_idx..=x2_idx]
                 .iter()
@@ -43,9 +48,6 @@ fn solve(input: &[u8], expansion_factor: usize) -> usize {
                     n => 1 + expansion_factor * (n - 1),
                 })
                 .sum::<usize>();
-
-            let y1_idx = stars_ys.binary_search(&y1.min(y2)).unwrap();
-            let y2_idx = stars_ys.binary_search(&y1.max(y2)).unwrap();
 
             let distance_y = stars_ys[y1_idx..=y2_idx]
                 .iter()
