@@ -111,11 +111,8 @@ fn solve(input: &[u8], is_part_2: bool) -> usize {
                                 });
 
                             // B) is Damaged a valid choice?
-                            let choice_damaged = if damaged < consecutive_damaged[stage] {
-                                Some(((damaged + 1, stage), count))
-                            } else {
-                                None
-                            };
+                            let choice_damaged = (damaged < consecutive_damaged[stage])
+                                .then(|| ((damaged + 1, stage), count));
 
                             choice_operational
                                 .into_iter()
