@@ -5,6 +5,7 @@ use std::collections::BTreeMap;
 
 use bstr::ByteSlice;
 use itertools::Itertools;
+use rayon::prelude::*;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
 
@@ -36,6 +37,8 @@ fn collect_map_sum(
 fn solve(input: &[u8], is_part_2: bool) -> usize {
     input
         .lines()
+        .collect_vec()
+        .into_par_iter()
         .map(|line| {
             let (states, consecutive_damaged) = line.split_once_str(" ").unwrap();
             let mut states = states
