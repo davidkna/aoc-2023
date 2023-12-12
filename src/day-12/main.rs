@@ -1,8 +1,9 @@
 #![feature(test)]
 extern crate test;
 
+use std::collections::BTreeMap;
+
 use bstr::ByteSlice;
-use fnv::FnvHashMap;
 use itertools::Itertools;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
@@ -21,18 +22,15 @@ fn part_2(input: &[u8]) -> usize {
     solve(input, true)
 }
 
-fn collect_hm_sum(
-    hm: impl Iterator<Item = ((usize, usize), usize)>,
-) -> FnvHashMap<(usize, usize), usize> {
-    hm.fold(
-        FnvHashMap::default(),
-        |mut acc, ((damaged, stage), count)| {
-            acc.entry((damaged, stage))
-                .and_modify(|c| *c += count)
-                .or_insert(count);
-            acc
-        },
-    )
+fn collect_map_sum(
+    map: impl Iterator<Item = ((usize, usize), usize)>,
+) -> BTreeMap<(usize, usize), usize> {
+    map.fold(BTreeMap::default(), |mut acc, ((damaged, stage), count)| {
+        acc.entry((damaged, stage))
+            .and_modify(|c| *c += count)
+            .or_insert(count);
+        acc
+    })
 }
 
 fn solve(input: &[u8], is_part_2: bool) -> usize {
@@ -66,7 +64,7 @@ fn solve(input: &[u8], is_part_2: bool) -> usize {
                     .collect_vec();
             }
 
-            let mut posssible_choices = FnvHashMap::from_iter([((0, 0), 1)]);
+            let mut posssible_choices = BTreeMap::from_iter([((0, 0), 1)]);
             for state in states {
                 posssible_choices = match state {
                     Some(State::Damaged) => posssible_choices
@@ -79,7 +77,7 @@ fn solve(input: &[u8], is_part_2: bool) -> usize {
                         })
                         .collect(),
                     Some(State::Operational) => {
-                        collect_hm_sum(posssible_choices.into_iter().filter_map(|choice| {
+                        collect_map_sum(posssible_choices.into_iter().filter_map(|choice| {
                             let ((damaged, stage), count) = choice;
                             match damaged {
                                 0 => Some(choice),
@@ -95,7 +93,7 @@ fn solve(input: &[u8], is_part_2: bool) -> usize {
                         }))
                     }
                     None => {
-                        collect_hm_sum(posssible_choices.into_iter().flat_map(|choice| {
+                        collect_map_sum(posssible_choices.into_iter().flat_map(|choice| {
                             let ((damaged, stage), count) = choice;
 
                             // A) is Operational a valid choice?
