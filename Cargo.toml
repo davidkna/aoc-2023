@@ -57,6 +57,10 @@ path = "src/day-12/main.rs"
 name = "day-13"
 path = "src/day-13/main.rs"
 
+[[bin]]
+name = "day-14"
+path = "src/day-14/main.rs"
+
 [lib]
 path = "src/lib.rs"
 
@@ -70,4 +74,3 @@ mimalloc-rust = "0.2.1"
 rayon = "1.8.0"
 regex = "1.10.2"
 smallvec = { version  = "1.11.2", features = ["write", "union", "const_generics", "const_new", "specialization", "may_dangle"] }
-
