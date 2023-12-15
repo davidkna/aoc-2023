@@ -2,10 +2,8 @@
 #![feature(test)]
 extern crate test;
 
-use std::cmp;
-
 use bstr::ByteSlice;
-use itertools::Itertools;
+use itertools::{izip, Itertools};
 
 const INPUT: &[u8] = include_bytes!("input.txt");
 
@@ -17,6 +15,25 @@ fn part_2(input: &[u8]) -> usize {
     solve(input, 1_000_000)
 }
 
+fn solve_dimension(
+    it: impl Iterator<Item = usize>,
+    expansion_factor: usize,
+    stars_len: usize,
+) -> usize {
+    it.sorted()
+        .tuple_windows()
+        .zip(izip!((0..stars_len).rev(), 0..))
+        .scan(0, |state, ((curr, next), (to_add, to_remove))| {
+            *state = *state + to_add - to_remove;
+            Some(match curr - next {
+                0 => 0,
+                1 => *state,
+                n => *state * (1 + expansion_factor * (n - 1)),
+            })
+        })
+        .sum::<usize>()
+}
+
 fn solve(input: &[u8], expansion_factor: usize) -> usize {
     let stars = input
         .lines()
@@ -24,46 +41,11 @@ fn solve(input: &[u8], expansion_factor: usize) -> usize {
         .flat_map(|(y, line)| memchr::memchr_iter(b'#', line).map(move |x| (x, y)))
         .collect_vec();
 
-    let stars_ys = stars.iter().map(|(_, y)| *y).sorted().dedup().collect_vec();
-    let stars_xs = stars.iter().map(|(x, _)| *x).sorted().dedup().collect_vec();
+    let stars_len = stars.len();
 
-    stars
-        .into_iter()
-        .map(|(x, y)| {
-            let x_pos = stars_xs.binary_search(&x).unwrap();
-            let y_pos = stars_ys.binary_search(&y).unwrap();
-            (x_pos, y_pos)
-        })
-        .tuple_combinations()
-        .map(|(star1, star2)| {
-            let [x1_idx, x2_idx] = cmp::minmax(star1.0, star2.0);
-            let [y1_idx, y2_idx] = cmp::minmax(star1.1, star2.1);
-
-            let distance_x = stars_xs[x1_idx..=x2_idx]
-                .iter()
-                .tuple_windows()
-                .map(|(x1, x2)| match x2 - x1 {
-                    0 => 0,
-                    1 => 1,
-                    n => 1 + expansion_factor * (n - 1),
-                })
-                .sum::<usize>();
-
-            let distance_y = stars_ys[y1_idx..=y2_idx]
-                .iter()
-                .tuple_windows()
-                .map(|(y1, y2)| match y2 - y1 {
-                    0 => 0,
-                    1 => 1,
-                    n => 1 + expansion_factor * (n - 1),
-                })
-                .sum::<usize>();
-
-            distance_x + distance_y
-        })
-        .sum()
+    solve_dimension(stars.iter().map(|(x, _)| *x), expansion_factor, stars_len)
+        + solve_dimension(stars.iter().map(|(_, y)| *y), expansion_factor, stars_len)
 }
-
 fn main() {
     println!("Part 1: {}", part_1(INPUT));
     println!("Part 2: {}", part_2(INPUT));
