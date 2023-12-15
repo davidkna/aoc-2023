@@ -114,9 +114,9 @@ fn part_2(input: &[u8]) -> usize {
 
     for it in 0..1e9 as _ {
         cycle(&mut map);
-        let mut hasher = BuildHasherDefault::<fnv::FnvHasher>::default().build_hasher();
-        map.hash(&mut hasher);
-        let map_hash = hasher.finish();
+        
+        
+        let map_hash = BuildHasherDefault::<fnv::FnvHasher>::default().hash_one(&map);
 
         if let Some(cycle_start) = cache.iter().position(|(h, m)| h == &map_hash && m == &map) {
             let cycle_len = it - cycle_start;
