@@ -1,7 +1,7 @@
 #![feature(test)]
 extern crate test;
 
-use std::hash::{BuildHasher, BuildHasherDefault, Hash, Hasher};
+use std::hash::{BuildHasher, BuildHasherDefault, Hash};
 
 use bstr::ByteSlice;
 use itertools::{izip, Itertools};
@@ -114,8 +114,7 @@ fn part_2(input: &[u8]) -> usize {
 
     for it in 0..1e9 as _ {
         cycle(&mut map);
-        
-        
+
         let map_hash = BuildHasherDefault::<fnv::FnvHasher>::default().hash_one(&map);
 
         if let Some(cycle_start) = cache.iter().position(|(h, m)| h == &map_hash && m == &map) {
