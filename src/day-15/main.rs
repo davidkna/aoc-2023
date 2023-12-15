@@ -7,14 +7,14 @@ use bstr::ByteSlice;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
 
-fn hash_box(input: &[u8]) -> u32 {
+fn hash_box(input: &[u8]) -> u8 {
     input
         .iter()
-        .fold(0, |acc, &c| ((acc + c as u32) * 17) % 256)
+        .fold(0, |acc, &c| acc.overflowing_add(c).0.overflowing_mul(17).0)
 }
 
 fn part_1(input: &[u8]) -> u32 {
-    input.split_str(",").map(hash_box).sum()
+    input.split_str(",").map(hash_box).map(u32::from).sum()
 }
 
 fn part_2(input: &[u8]) -> u32 {
