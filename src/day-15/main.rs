@@ -19,10 +19,10 @@ fn part_1(input: &[u8]) -> u32 {
 
 fn part_2(input: &[u8]) -> u32 {
     let mut boxes = vec![LinkedList::new(); 256];
-    input.split_str(",").for_each(|s| {
-        if let Some((box_name, value)) = s.split_once_str("=") {
+    input.split_str(",").for_each(|s| match s {
+        [box_name @ .., b'=', value @ b'0'..=b'9'] => {
             let box_id = hash_box(box_name) as usize;
-            let box_value = unsafe { value.to_str_unchecked() }.parse::<u32>().unwrap();
+            let box_value = value - b'0';
 
             for (name, value) in boxes[box_id].iter_mut() {
                 if name == &box_name {
@@ -31,18 +31,19 @@ fn part_2(input: &[u8]) -> u32 {
                 }
             }
             boxes[box_id].push_back((box_name, box_value));
-            return;
         }
-        let box_name = &s[..s.len() - 1];
-        let box_id = hash_box(box_name) as usize;
-        let mut cursor = boxes[box_id].cursor_front_mut();
-        while let Some((name, _value)) = cursor.current() {
-            if name == &box_name {
-                cursor.remove_current();
-                break;
+        [box_name @ .., b'-'] => {
+            let box_id = hash_box(box_name) as usize;
+            let mut cursor = boxes[box_id].cursor_front_mut();
+            while let Some((name, _value)) = cursor.current() {
+                if name == &box_name {
+                    cursor.remove_current();
+                    break;
+                }
+                cursor.move_next();
             }
-            cursor.move_next();
         }
+        _ => unreachable!("Invalid input: {}", s.as_bstr()),
     });
 
     boxes
@@ -53,7 +54,7 @@ fn part_2(input: &[u8]) -> u32 {
                 * list
                     .into_iter()
                     .zip(1..)
-                    .map(|((_, value), slot)| value * slot)
+                    .map(|((_, value), slot)| value as u32 * slot)
                     .sum::<u32>()
         })
         .sum()
