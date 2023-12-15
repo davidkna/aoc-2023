@@ -48,7 +48,7 @@ fn part_1(input: &[u8]) -> u64 {
                 .group_by(|&&c| c)
                 .into_iter()
                 .map(|(_c, g)| g.count())
-                .sorted()
+                .sorted_unstable()
                 .collect_vec();
 
             let hand_type = match frequency.as_slice() {
@@ -107,7 +107,7 @@ fn part_2(input: &[u8]) -> u64 {
                         Some(g.count())
                     }
                 })
-                .sorted()
+                .sorted_unstable()
                 .collect_vec();
 
             match frequency.last_mut() {

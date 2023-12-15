@@ -20,12 +20,12 @@ fn solve_dimension(
     expansion_factor: usize,
     stars_len: usize,
 ) -> usize {
-    it.sorted()
+    it.sorted_unstable()
         .tuple_windows()
         .zip(izip!((0..stars_len).rev(), 0..))
         .scan(0, |state, ((curr, next), (to_add, to_remove))| {
             *state = *state + to_add - to_remove;
-            Some(match curr - next {
+            Some(match next - curr {
                 0 => 0,
                 1 => *state,
                 n => *state * (1 + expansion_factor * (n - 1)),
