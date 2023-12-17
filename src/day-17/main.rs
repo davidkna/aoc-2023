@@ -15,16 +15,16 @@ enum Direction {
     West,
 }
 
-fn part_1(input: &[u8]) -> u32 {
+fn part_1(input: &[u8]) -> u16 {
     solve(input, false)
 }
 
-fn part_2(input: &[u8]) -> u32 {
+fn part_2(input: &[u8]) -> u16 {
     solve(input, true)
 }
 
 #[inline]
-fn solve(input: &[u8], ultra: bool) -> u32 {
+fn solve(input: &[u8], ultra: bool) -> u16 {
     let mut queue = BinaryHeap::new();
     let mut visited = FnvHashMap::default();
     let rows = input.lines().count();
@@ -106,19 +106,19 @@ fn solve(input: &[u8], ultra: bool) -> u32 {
                     match d {
                         Direction::North => (0..4)
                             .map(|i| input[(y_ + i) * (cols + 1) + x_] - b'0')
-                            .sum::<u8>() as u32,
+                            .sum::<u8>() as u16,
                         Direction::West => (0..4)
                             .map(|i| input[y_ * (cols + 1) + x_ + i] - b'0')
-                            .sum::<u8>() as u32,
+                            .sum::<u8>() as u16,
                         Direction::South => (0..4)
                             .map(|i| input[(y_ - i) * (cols + 1) + x_] - b'0')
-                            .sum::<u8>() as u32,
+                            .sum::<u8>() as u16,
                         Direction::East => (0..4)
                             .map(|i| input[y_ * (cols + 1) + x_ - i] - b'0')
-                            .sum::<u8>() as u32,
+                            .sum::<u8>() as u16,
                     }
                 } else {
-                    (input[y_ * (cols + 1) + x_] - b'0') as u32
+                    (input[y_ * (cols + 1) + x_] - b'0') as u16
                 } + prio;
                 let straight_steps = match d {
                     _ if ultra && (d != direction || (x, y) == (0, 0)) => 4,
