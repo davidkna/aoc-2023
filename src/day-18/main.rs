@@ -3,74 +3,65 @@ extern crate test;
 
 use bstr::ByteSlice;
 
-
 const INPUT: &[u8] = include_bytes!("input.txt");
 
-fn part_1(input: &[u8]) -> u64 {
-    let (_, visited, exterior) = input.lines().fold(
-        ([0, 0], vec![[0, 0]], 0),
-        |([x, y], mut visited, count), line| {
-            let dir = line[0];
-            let mut steps = (line[2] - b'0') as i64;
-            match line[3] {
-                d @ b'0'..=b'9' => steps = steps * 10 + (d - b'0') as i64,
-                b' ' => (),
-                _ => (),
-            };
+fn part_1(input: &[u8]) -> u32 {
+    let (last_point, mut area, exterior) =
+        input
+            .lines()
+            .fold(([0, 0], 0i32, 0i32), |([x0, y0], acc, count), line| {
+                let dir = line[0];
+                let mut steps = (line[2] - b'0') as i32;
+                match line[3] {
+                    d @ b'0'..=b'9' => steps = steps * 10 + (d - b'0') as i32,
+                    b' ' => (),
+                    _ => (),
+                };
 
-            let [x, y] = match dir {
-                b'R' => [x + steps, y],
-                b'D' => [x, y + steps],
-                b'L' => [x - steps, y],
-                b'U' => [x, y - steps],
-                _ => panic!("Unknown direction"),
-            };
-            visited.push([x, y]);
+                let [x1, y1] = match dir {
+                    b'R' => [x0 + steps, y0],
+                    b'D' => [x0, y0 + steps],
+                    b'L' => [x0 - steps, y0],
+                    b'U' => [x0, y0 - steps],
+                    _ => panic!("Unknown direction"),
+                };
 
-            ([x, y], visited, count + steps)
-        },
-    );
-    calc(&visited, exterior as _)
+                ([x1, y1], acc + (y0 + y1) * (x1 - x0), count + steps)
+            });
+
+    area += last_point[1] * (0 - last_point[0]);
+    area /= 2;
+    area.unsigned_abs() + 1 + exterior as u32 / 2
 }
 
 fn part_2(input: &[u8]) -> u64 {
-    let (_, visited, exterior) = input.lines().fold(
-        ([0, 0], vec![[0, 0]], 0),
-        |([x, y], mut visited, count), line| {
-            let dir = line[line.len() - 2];
-            let steps_hex = &line[line.len() - 7..line.len() - 2];
-            let mut steps_hex_padded = [b'0'; 6];
-            steps_hex_padded[1..].copy_from_slice(steps_hex);
+    let (last_point, mut area, exterior) =
+        input
+            .lines()
+            .fold(([0, 0], 0i64, 0i64), |([x0, y0], acc, count), line| {
+                let dir = line[line.len() - 2];
+                let steps_hex = &line[line.len() - 7..line.len() - 2];
+                let mut steps_hex_padded = [b'0'; 6];
+                steps_hex_padded[1..].copy_from_slice(steps_hex);
 
-            let mut steps_hex_decode = [0; 4];
-            faster_hex::hex_decode(&steps_hex_padded, &mut steps_hex_decode[1..]).unwrap();
-            let steps = u32::from_be_bytes(steps_hex_decode) as i64;
+                let mut steps_hex_decode = [0; 4];
+                faster_hex::hex_decode(&steps_hex_padded, &mut steps_hex_decode[1..]).unwrap();
+                let steps = u32::from_be_bytes(steps_hex_decode) as i64;
 
-            let [x, y] = match dir {
-                b'0' => [x + steps, y],
-                b'1' => [x, y + steps],
-                b'2' => [x - steps, y],
-                b'3' => [x, y - steps],
-                _ => panic!("Unknown direction"),
-            };
-            visited.push([x, y]);
+                let [x1, y1] = match dir {
+                    b'0' => [x0 + steps, y0],
+                    b'1' => [x0, y0 + steps],
+                    b'2' => [x0 - steps, y0],
+                    b'3' => [x0, y0 - steps],
+                    _ => panic!("Unknown direction"),
+                };
 
-            ([x, y], visited, count + steps)
-        },
-    );
-    calc(&visited, exterior as _)
-}
+                ([x1, y1], acc + (y0 + y1) * (x1 - x0), count + steps)
+            });
 
-fn calc(visited: &[[i64; 2]], exterior: u64) -> u64 {
-    let area = visited
-        .iter()
-        .zip(visited.iter().cycle().skip(1))
-        .map(|(&[x1, y1], &[x2, y2])| (y1 + y2) * (x2 - x1))
-        .sum::<i64>()
-        .abs()
-        / 2;
-
-    area as u64 + 1 + exterior / 2
+    area += last_point[1] * (0 - last_point[0]);
+    area /= 2;
+    area.unsigned_abs() + 1 + exterior as u64 / 2
 }
 
 fn main() {
