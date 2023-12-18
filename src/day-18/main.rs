@@ -23,7 +23,7 @@ fn part_1(input: &[u8]) -> u32 {
                     b'D' => [x0, y0 + steps],
                     b'L' => [x0 - steps, y0],
                     b'U' => [x0, y0 - steps],
-                    _ => panic!("Unknown direction"),
+                    _ => unreachable!("Unknown direction"),
                 };
 
                 ([x1, y1], acc + (y0 + y1) * (x1 - x0), count + steps)
@@ -53,7 +53,7 @@ fn part_2(input: &[u8]) -> u64 {
                     b'1' => [x0, y0 + steps],
                     b'2' => [x0 - steps, y0],
                     b'3' => [x0, y0 - steps],
-                    _ => panic!("Unknown direction"),
+                    _ => unreachable!("Unknown direction"),
                 };
 
                 ([x1, y1], acc + (y0 + y1) * (x1 - x0), count + steps)
