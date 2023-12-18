@@ -45,7 +45,7 @@ fn part_2(input: &[u8]) -> u64 {
                 steps_hex_padded[1..].copy_from_slice(steps_hex);
 
                 let mut steps_hex_decode = [0; 4];
-                faster_hex::hex_decode(&steps_hex_padded, &mut steps_hex_decode[1..]).unwrap();
+                faster_hex::hex_decode_unchecked(&steps_hex_padded, &mut steps_hex_decode[1..]);
                 let steps = u32::from_be_bytes(steps_hex_decode) as i64;
 
                 let [x1, y1] = match dir {
