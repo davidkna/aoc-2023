@@ -73,12 +73,17 @@ path = "src/day-16/main.rs"
 name = "day-17"
 path = "src/day-17/main.rs"
 
+[[bin]]
+name = "day-18"
+path = "src/day-18/main.rs"
+
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
 aho-corasick = "1.1.2"
 bstr = "1.8.0"
+faster-hex = "0.9.0"
 fnv = "1.0.7"
 itertools = "0.12.0"
 memchr = "2.6.4"
