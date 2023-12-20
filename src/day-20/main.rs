@@ -69,18 +69,10 @@ fn parse_input(input: &[u8]) -> (Vec<&[u8]>, FnvHashMap<&[u8], Module>) {
                 let Some(module) = rules.get_mut(output) else {
                     return;
                 };
-                if let ModuleKind::Conjunction { last_pulses, .. } = &mut module.kind {
+                if let ModuleKind::Conjunction { last_pulses } = &mut module.kind {
                     last_pulses.push((name, Pulse::Low));
                 }
             });
-    }
-
-    for target in &broadcaster_targets {
-        let module = rules.get_mut(target).unwrap();
-
-        if let ModuleKind::Conjunction { last_pulses } = &mut module.kind {
-            last_pulses.push((b"broadcaster".as_slice(), Pulse::Low));
-        }
     }
 
     (broadcaster_targets, rules)
@@ -169,14 +161,13 @@ fn part_2(input: &[u8]) -> u64 {
 
     let rx_parent_inputs = {
         let module = &rules[rx_parent];
-        if let ModuleKind::Conjunction { last_pulses, .. } = &module.kind {
-            last_pulses
-                .iter()
-                .map(|(input, _pulse)| *input)
-                .collect_vec()
-        } else {
-            unreachable!()
-        }
+        let ModuleKind::Conjunction { last_pulses } = &module.kind else {
+            unreachable!();
+        };
+        last_pulses
+            .iter()
+            .map(|(input, _pulse)| *input)
+            .collect_vec()
     };
 
     let mut loop_idx = rx_parent_inputs.iter().map(|_| None).collect_vec();
