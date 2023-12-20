@@ -104,21 +104,29 @@ fn solve(input: &[u8], ultra: bool) -> u16 {
             .for_each(|(y_, x_, d)| {
                 let prio = if ultra && (d != direction || (y, x) == (0, 0)) {
                     match d {
-                        Direction::North => (0..4)
-                            .map(|i| input[(y_ + i) * (cols + 1) + x_] - b'0')
-                            .sum::<u8>() as u16,
-                        Direction::West => (0..4)
-                            .map(|i| input[y_ * (cols + 1) + x_ + i] - b'0')
-                            .sum::<u8>() as u16,
-                        Direction::South => (0..4)
-                            .map(|i| input[(y_ - i) * (cols + 1) + x_] - b'0')
-                            .sum::<u8>() as u16,
-                        Direction::East => (0..4)
-                            .map(|i| input[y_ * (cols + 1) + x_ - i] - b'0')
-                            .sum::<u8>() as u16,
+                        Direction::North => u16::from(
+                            (0..4)
+                                .map(|i| input[(y_ + i) * (cols + 1) + x_] - b'0')
+                                .sum::<u8>(),
+                        ),
+                        Direction::West => u16::from(
+                            (0..4)
+                                .map(|i| input[y_ * (cols + 1) + x_ + i] - b'0')
+                                .sum::<u8>(),
+                        ),
+                        Direction::South => u16::from(
+                            (0..4)
+                                .map(|i| input[(y_ - i) * (cols + 1) + x_] - b'0')
+                                .sum::<u8>(),
+                        ),
+                        Direction::East => u16::from(
+                            (0..4)
+                                .map(|i| input[y_ * (cols + 1) + x_ - i] - b'0')
+                                .sum::<u8>(),
+                        ),
                     }
                 } else {
-                    (input[y_ * (cols + 1) + x_] - b'0') as u16
+                    u16::from(input[y_ * (cols + 1) + x_] - b'0')
                 } + prio;
                 let straight_steps = match d {
                     _ if ultra && (d != direction || (x, y) == (0, 0)) => 4,

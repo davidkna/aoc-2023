@@ -74,13 +74,13 @@ fn part_2(input: &[u8]) -> u64 {
     for (i, line) in input.lines().enumerate() {
         for (j, &c) in line.iter().enumerate() {
             if c == b'*' {
-                neighbors(row_count, col_count, i, j).iter().for_each(|&n| {
+                for &n in neighbors(row_count, col_count, i, j).iter() {
                     if grid[n].is_none() {
                         grid[n] = Some(smallvec![gear_idx]);
                     } else {
                         grid[n].as_mut().unwrap().push(gear_idx);
                     }
-                });
+                }
                 gear_idx += 1;
             }
         }
@@ -100,7 +100,7 @@ fn part_2(input: &[u8]) -> u64 {
                 temp = temp * 10 + u64::from(c - b'0');
                 continue;
             } else {
-                for &gear in encountered_gears.iter() {
+                for &gear in &encountered_gears {
                     if gears[gear].is_none() {
                         gears[gear] = Some(smallvec![temp]);
                     } else {
@@ -111,7 +111,7 @@ fn part_2(input: &[u8]) -> u64 {
                 encountered_gears.clear();
             }
         }
-        for &gear in encountered_gears.iter() {
+        for &gear in &encountered_gears {
             if gears[gear].is_none() {
                 gears[gear] = Some(smallvec![temp]);
             } else {
@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(EXAMPLE.as_bytes()), 467835);
+        assert_eq!(part_2(EXAMPLE.as_bytes()), 467_835);
     }
 
     #[bench]

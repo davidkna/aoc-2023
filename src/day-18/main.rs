@@ -11,9 +11,9 @@ fn part_1(input: &[u8]) -> u32 {
             .lines()
             .fold(([0, 0], 0i32, 0i32), |([x0, y0], acc, count), line| {
                 let dir = line[0];
-                let mut steps = (line[2] - b'0') as i32;
+                let mut steps = i32::from(line[2] - b'0');
                 match line[3] {
-                    d @ b'0'..=b'9' => steps = steps * 10 + (d - b'0') as i32,
+                    d @ b'0'..=b'9' => steps = steps * 10 + i32::from(d - b'0'),
                     b' ' => (),
                     _ => (),
                 };
@@ -46,7 +46,7 @@ fn part_2(input: &[u8]) -> u64 {
 
                 let mut steps_hex_decode = [0; 4];
                 faster_hex::hex_decode_unchecked(&steps_hex_padded, &mut steps_hex_decode[1..]);
-                let steps = u32::from_be_bytes(steps_hex_decode) as i64;
+                let steps = i64::from(u32::from_be_bytes(steps_hex_decode));
 
                 let [x1, y1] = match dir {
                     b'0' => [x0 + steps, y0],
@@ -97,7 +97,7 @@ U 2 (#7a21e3)";
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(EXAMPLE), 952408144115);
+        assert_eq!(part_2(EXAMPLE), 952_408_144_115);
     }
 
     #[bench]

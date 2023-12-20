@@ -158,7 +158,7 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(EXAMPLE), 525152);
+        assert_eq!(part_2(EXAMPLE), 525_152);
     }
 
     #[bench]

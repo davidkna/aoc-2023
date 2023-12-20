@@ -55,7 +55,7 @@ fn part_1(input: &[u8]) -> usize {
 
         let tile = grid[cursor.1][cursor.0];
         if tile == b'S' {
-            return (steps as f64 / 2.0).ceil() as usize;
+            return (f64::from(steps) / 2.0).ceil() as usize;
         }
 
         facing = match facing {

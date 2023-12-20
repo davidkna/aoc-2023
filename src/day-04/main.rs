@@ -58,7 +58,7 @@ fn part_2(input: &[u8]) -> u64 {
             }
 
             for _ in acc_len..match_count {
-                acc.push_back(my_count + 1)
+                acc.push_back(my_count + 1);
             }
 
             (result + my_count, acc)

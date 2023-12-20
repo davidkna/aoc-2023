@@ -49,18 +49,18 @@ impl ValueRange {
     }
 
     fn combination_count(&self) -> u64 {
-        (self.max + 1 - self.min) as u64
+        u64::from(self.max + 1 - self.min)
     }
 
-    fn split(&self, threshold: u16, op: Op) -> (ValueRange, ValueRange) {
+    fn split(&self, threshold: u16, op: Op) -> (Self, Self) {
         match op {
             Op::Gt => (
-                ValueRange::new(self.min, threshold),
-                ValueRange::new(threshold + 1, self.max),
+                Self::new(self.min, threshold),
+                Self::new(threshold + 1, self.max),
             ),
             Op::Lt => (
-                ValueRange::new(threshold, self.max),
-                ValueRange::new(self.min, threshold - 1),
+                Self::new(threshold, self.max),
+                Self::new(self.min, threshold - 1),
             ),
         }
     }
@@ -121,9 +121,9 @@ fn parse_rules(rule_desc: &[u8]) -> FnvHashMap<[u8; 3], Ruleset> {
 
                 let r = Rule {
                     attr,
-                    op,
                     threshold,
                     target,
+                    op,
                 };
 
                 match i {
@@ -176,7 +176,7 @@ fn part_1(input: &[u8]) -> u32 {
                     match rule.target {
                         Target::Reject => continue 'nextpart,
                         Target::Accept => {
-                            valid += xmas.iter().sum::<u16>() as u32;
+                            valid += u32::from(xmas.iter().sum::<u16>());
                             continue 'nextpart;
                         }
                         Target::Rule(target) => {
@@ -189,7 +189,7 @@ fn part_1(input: &[u8]) -> u32 {
             match cursor.default_target {
                 Target::Reject => continue 'nextpart,
                 Target::Accept => {
-                    valid += xmas.iter().sum::<u16>() as u32;
+                    valid += u32::from(xmas.iter().sum::<u16>());
                     continue 'nextpart;
                 }
                 Target::Rule(target) => {
@@ -300,7 +300,7 @@ hdj{m>838:A,pv}
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(EXAMPLE), 167409079868000);
+        assert_eq!(part_2(EXAMPLE), 167_409_079_868_000);
     }
 
     #[bench]

@@ -56,24 +56,24 @@ fn calc_energy(map: &[u8], start: (usize, usize, Direction)) -> u32 {
             (b'.' | b'-', Direction::Right) | (b'/', Direction::Up) | (b'\\', Direction::Down)
                 if x < n - 1 =>
             {
-                cursors.push((x + 1, y, Direction::Right))
+                cursors.push((x + 1, y, Direction::Right));
             }
             (b'.' | b'-', Direction::Left) | (b'/', Direction::Down) | (b'\\', Direction::Up)
                 if x > 0 =>
             {
-                cursors.push((x - 1, y, Direction::Left))
+                cursors.push((x - 1, y, Direction::Left));
             }
             (b'.' | b'|', Direction::Down)
             | (b'/', Direction::Left)
             | (b'\\', Direction::Right)
                 if y < n - 1 =>
             {
-                cursors.push((x, y + 1, Direction::Down))
+                cursors.push((x, y + 1, Direction::Down));
             }
             (b'.' | b'|', Direction::Up) | (b'/', Direction::Right) | (b'\\', Direction::Left)
                 if y > 0 =>
             {
-                cursors.push((x, y - 1, Direction::Up))
+                cursors.push((x, y - 1, Direction::Up));
             }
             (b'-', Direction::Up | Direction::Down) => {
                 if x > 0 {

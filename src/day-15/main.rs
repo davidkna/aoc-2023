@@ -26,7 +26,7 @@ fn part_2(input: &[u8]) -> u32 {
                     let box_id = hash_box(box_name) as usize;
                     let box_value = value - b'0';
 
-                    for (name, value) in boxes[box_id].iter_mut() {
+                    for (name, value) in &mut boxes[box_id] {
                         if name == &box_name {
                             *value = box_value;
                             return boxes;
@@ -56,7 +56,7 @@ fn part_2(input: &[u8]) -> u32 {
                 * list
                     .into_iter()
                     .zip(1..)
-                    .map(|((_, value), slot)| value as u32 * slot)
+                    .map(|((_, value), slot)| u32::from(value) * slot)
                     .sum::<u32>()
         })
         .sum()
