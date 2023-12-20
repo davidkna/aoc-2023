@@ -162,46 +162,14 @@ fn part_2(input: &[u8]) -> u64 {
         .find_map(|(name, module)| module.outputs.contains(&&b"rx"[..]).then_some(*name))
         .unwrap();
 
-    let rx_parent_inputs = {
-        let module = &rules[rx_parent];
-        let ModuleKind::Conjunction { last_pulses } = &module.kind else {
-            unreachable!();
-        };
-        TryInto::<[&[u8]; 4]>::try_into(
-            last_pulses
-                .iter()
-                .map(|(input, _pulse)| *input)
-                .collect_vec(),
-        )
-        .unwrap()
-    };
-
-    let src_to_rx = broadcaster_targets.map(|target| {
-        let mut queue = Vec::new();
-        queue.push(target);
-
-        while let Some(name) = queue.pop() {
-            let module = &rules[name];
-            for out in &module.outputs {
-                if rx_parent_inputs.contains(out) {
-                    return (target, *out);
-                }
-
-                queue.push(out);
-            }
-        }
-        unreachable!()
-    });
-
-    src_to_rx
-        .into_iter()
-        .map(|(src, dst)| {
+    broadcaster_targets
+        .map(|src| {
             let mut queue = VecDeque::new();
 
             for it in 1.. {
                 queue.push_back((src, b"broadcaster".as_slice(), Pulse::Low));
                 while let Some((name, parent_name, pulse)) = queue.pop_front() {
-                    if parent_name == dst && pulse == Pulse::High {
+                    if name == rx_parent && pulse == Pulse::High {
                         return it;
                     }
                     perform_tick(&mut queue, &mut rules, name, parent_name, pulse);
@@ -210,6 +178,7 @@ fn part_2(input: &[u8]) -> u64 {
 
             unreachable!()
         })
+        .into_iter()
         .reduce(lowest_common_multiple)
         .unwrap()
 }
