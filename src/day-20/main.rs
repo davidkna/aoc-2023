@@ -16,16 +16,15 @@ enum Pulse {
 }
 
 #[derive(Debug)]
-enum ModuleKind {
+enum ModuleKind<'a> {
     FlipFlop { off: bool },
-    Conjunction { last_pulses: Vec<Pulse> },
+    Conjunction { last_pulses: Vec<(&'a [u8], Pulse)> },
 }
 
 #[derive(Debug)]
 struct Module<'a> {
-    kind: ModuleKind,
+    kind: ModuleKind<'a>,
     outputs: Vec<&'a [u8]>,
-    inputs: Vec<&'a [u8]>,
 }
 
 fn parse_input(input: &[u8]) -> (Vec<&[u8]>, FnvHashMap<&[u8], Module>) {
@@ -52,11 +51,7 @@ fn parse_input(input: &[u8]) -> (Vec<&[u8]>, FnvHashMap<&[u8], Module>) {
                 _ => unreachable!("invalid module kind"),
             };
 
-            let module = Module {
-                kind,
-                outputs,
-                inputs: vec![],
-            };
+            let module = Module { kind, outputs };
             (name, module)
         })
         .collect::<FnvHashMap<_, _>>();
@@ -74,20 +69,20 @@ fn parse_input(input: &[u8]) -> (Vec<&[u8]>, FnvHashMap<&[u8], Module>) {
                 let Some(module) = rules.get_mut(output) else {
                     return;
                 };
-                module.inputs.push(name);
+                if let ModuleKind::Conjunction { last_pulses, .. } = &mut module.kind {
+                    last_pulses.push((name, Pulse::Low));
+                }
             });
     }
 
     for target in &broadcaster_targets {
         let module = rules.get_mut(target).unwrap();
-        module.inputs.push(b"broadcaster");
-    }
 
-    for (_name, module) in &mut rules {
         if let ModuleKind::Conjunction { last_pulses } = &mut module.kind {
-            last_pulses.resize(module.inputs.len(), Pulse::Low);
+            last_pulses.push((b"broadcaster".as_slice(), Pulse::Low));
         }
     }
+
     (broadcaster_targets, rules)
 }
 
@@ -111,14 +106,13 @@ fn perform_tick<'a>(
             pulse_type
         }
         ModuleKind::Conjunction { last_pulses } => {
-            let input_idx = module
-                .inputs
-                .iter()
-                .position(|input| input == &parent_name)
-                .unwrap();
-            last_pulses[input_idx] = pulse;
+            last_pulses
+                .iter_mut()
+                .find(|(input, _pulse)| input == &parent_name)
+                .unwrap()
+                .1 = pulse;
 
-            let all_high = last_pulses.iter().all(|pulse| *pulse == Pulse::High);
+            let all_high = last_pulses.iter().all(|(_, pulse)| *pulse == Pulse::High);
             if all_high {
                 Pulse::Low
             } else {
@@ -173,9 +167,19 @@ fn part_2(input: &[u8]) -> u64 {
         .find_map(|(name, module)| module.outputs.contains(&&b"rx"[..]).then_some(*name))
         .unwrap();
 
-    let rx_parent_inputs = rules[rx_parent].inputs.clone();
+    let rx_parent_inputs = {
+        let module = &rules[rx_parent];
+        if let ModuleKind::Conjunction { last_pulses, .. } = &module.kind {
+            last_pulses
+                .iter()
+                .map(|(input, _pulse)| *input)
+                .collect_vec()
+        } else {
+            unreachable!()
+        }
+    };
 
-    let mut loop_idx = rules[rx_parent].inputs.iter().map(|_| None).collect_vec();
+    let mut loop_idx = rx_parent_inputs.iter().map(|_| None).collect_vec();
 
     let mut it = 1;
     let mut queue = VecDeque::new();
