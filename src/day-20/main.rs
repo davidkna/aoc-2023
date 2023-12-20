@@ -27,7 +27,7 @@ struct Module<'a> {
     outputs: Vec<&'a [u8]>,
 }
 
-fn parse_input(input: &[u8]) -> (Vec<&[u8]>, FnvHashMap<&[u8], Module>) {
+fn parse_input(input: &[u8]) -> ([&[u8]; 4], FnvHashMap<&[u8], Module>) {
     let broadcaster_targets = input
         .lines()
         .find_map(|line| {
@@ -75,7 +75,10 @@ fn parse_input(input: &[u8]) -> (Vec<&[u8]>, FnvHashMap<&[u8], Module>) {
             });
     }
 
-    (broadcaster_targets, rules)
+    (
+        TryInto::<[&[u8]; 4]>::try_into(broadcaster_targets).unwrap(),
+        rules,
+    )
 }
 
 fn perform_tick<'a>(
@@ -164,41 +167,49 @@ fn part_2(input: &[u8]) -> u64 {
         let ModuleKind::Conjunction { last_pulses } = &module.kind else {
             unreachable!();
         };
-        last_pulses
-            .iter()
-            .map(|(input, _pulse)| *input)
-            .collect_vec()
+        TryInto::<[&[u8]; 4]>::try_into(
+            last_pulses
+                .iter()
+                .map(|(input, _pulse)| *input)
+                .collect_vec(),
+        )
+        .unwrap()
     };
 
-    let mut loop_idx = rx_parent_inputs.iter().map(|_| None).collect_vec();
+    let src_to_rx = broadcaster_targets.map(|target| {
+        let mut queue = Vec::new();
+        queue.push(target);
 
-    let mut it = 1;
-    let mut queue = VecDeque::new();
-    while loop_idx.iter().any(Option::is_none) {
-        for target in &broadcaster_targets {
-            queue.push_back((*target, b"broadcaster".as_slice(), Pulse::Low));
-        }
-
-        while let Some((name, parent_name, pulse)) = queue.pop_front() {
-            perform_tick(&mut queue, &mut rules, name, parent_name, pulse);
-            if name == rx_parent {
-                let idx = rx_parent_inputs
-                    .iter()
-                    .position(|input| input == &parent_name)
-                    .unwrap();
-
-                if loop_idx[idx].is_none() && pulse == Pulse::High {
-                    loop_idx[idx] = Some(it);
+        while let Some(name) = queue.pop() {
+            let module = &rules[name];
+            for out in &module.outputs {
+                if rx_parent_inputs.contains(out) {
+                    return (target, *out);
                 }
+
+                queue.push(out);
             }
         }
+        unreachable!()
+    });
 
-        it += 1;
-    }
-
-    loop_idx
+    src_to_rx
         .into_iter()
-        .map(Option::unwrap)
+        .map(|(src, dst)| {
+            let mut queue = VecDeque::new();
+
+            for it in 1.. {
+                queue.push_back((src, b"broadcaster".as_slice(), Pulse::Low));
+                while let Some((name, parent_name, pulse)) = queue.pop_front() {
+                    if parent_name == dst && pulse == Pulse::High {
+                        return it;
+                    }
+                    perform_tick(&mut queue, &mut rules, name, parent_name, pulse);
+                }
+            }
+
+            unreachable!()
+        })
         .reduce(lowest_common_multiple)
         .unwrap()
 }
