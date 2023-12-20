@@ -142,19 +142,6 @@ fn part_1(input: &[u8]) -> u32 {
     output_low * output_high
 }
 
-fn greatest_common_divisor(a: u64, b: u64) -> u64 {
-    let mut a = a;
-    let mut b = b;
-    while b != 0 {
-        (a, b) = (b, a % b);
-    }
-    a
-}
-
-fn lowest_common_multiple(a: u64, b: u64) -> u64 {
-    a * b / greatest_common_divisor(a, b)
-}
-
 fn part_2(input: &[u8]) -> u64 {
     let (broadcaster_targets, mut rules) = parse_input(input);
     let rx_parent = rules
@@ -179,8 +166,7 @@ fn part_2(input: &[u8]) -> u64 {
             unreachable!()
         })
         .into_iter()
-        .reduce(lowest_common_multiple)
-        .unwrap()
+        .product()
 }
 
 fn main() {
