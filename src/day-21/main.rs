@@ -48,21 +48,13 @@ fn part_1(input: &[u8], steps: usize) -> u32 {
 }
 
 fn part_2(input: &[u8], steps: u64) -> u64 {
-    let grid = input.lines().collect_vec();
-    let n = grid.len() as u64;
-    let targets = [0, n / 2, n + n / 2, 2 * n + n / 2];
-
-    let start = grid
-        .iter()
-        .enumerate()
-        .find_map(|(y, line)| line.find_byte(b'S').map(|x| (x, y)))
-        .unwrap();
-
-    let (y0, y1, y2) = targets
+    let targets = [0, 65, 65 + 131, 65 + 2 * 131];
+    let start = (65i16, 65i16);
+    let (a, b, c) = targets
         .into_iter()
         .tuple_windows()
         .scan(
-            FnvHashSet::from_iter(iter::once((start.0 as i64, start.1 as i64))),
+            FnvHashSet::from_iter(iter::once(start)),
             |queue, (start, end)| {
                 for _ in start..end {
                     *queue = queue
@@ -70,29 +62,23 @@ fn part_2(input: &[u8], steps: u64) -> u64 {
                         .flat_map(|&(y, x)| {
                             [(0, 1), (0, -1), (1, 0), (-1, 0)]
                                 .into_iter()
-                                .zip(iter::repeat((y, x)))
-                                .filter_map(|((dy, dx), (x, y))| {
-                                    let (ny, nx) = (y + dy, x + dx);
-                                    (grid[ny.rem_euclid(n as i64) as usize]
-                                        [nx.rem_euclid(n as i64) as usize]
-                                        != b'#')
-                                        .then_some((ny, nx))
+                                .map(move |(dy, dx)| (y + dy, x + dx))
+                                .filter(|&(y, x)| {
+                                    input[(y.rem_euclid(131) as usize * 132)
+                                        + x.rem_euclid(131) as usize]
+                                        != b'#'
                                 })
                         })
                         .collect::<FnvHashSet<_>>();
                 }
-                Some(queue.len() as u64 - 1)
+                Some(queue.len() as u64)
             },
         )
         .collect_tuple()
         .unwrap();
 
-    let x = steps / n;
-
-    let a = (y2 + y0 - 2 * y1) / 2;
-    let b = y1 - y0 - a;
-    let c = y0;
-    a * x * x + b * x + c
+    let x = steps / 131;
+    a + x * (b - a) + x * (x - 1) / 2 * ((c - b) - (b - a))
 }
 
 fn main() {
